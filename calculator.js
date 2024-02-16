@@ -1,6 +1,7 @@
 let displayArray = [];
-let resultArray = [];
-let numberArray = [];
+let resultArray = [];  
+let numberArray = [];  // array for each individual digit
+
 
 // display Div
 const questionDiv = document.getElementById("questionDisplay");
@@ -24,16 +25,29 @@ for(let i = 0; i < btnArray.length; i++){
 
 // other normalC area
 let normalCArray = [];
-const normalCElements = ["clearEntryBtn", "clearBtn", "backspaceBtn", "equalBtn", "pointBtn" ,"divideBtn", "multiplyBtn", "minusBtn", "plusBtn"];
+const normalCElements = ["clearEntryBtn", "clearBtn", "backspaceBtn", "equalBtn", "pointBtn"];
 for (let i = 0; i < normalCElements.length; i++){
     normalCArray[i] = document.getElementById(normalCElements[i])
 }
 
-const normalCContent = ["CE", "C", "⌫", "=", ".", "➗", "x", "-", "+"]; //functions must be behind the array.
+const normalCContent = ["CE", "C", "⌫", "=", "."]; //functions must be behind the array.
 for(let i = 0; i < normalCArray.length; i++){
     let button = document.createElement("button");
     button.textContent = normalCContent[i];
     normalCArray[i].append(button);
+}
+
+//Grabs the div of operators
+const operatorsArray = [plus, minus, multiply, divide];
+for(let i = 0; i <operatorsArray.length; i++){
+    operatorsArray[i].div = document.getElementById(operatorsArray[i].elementString);
+}
+
+//Creates button for operator
+for(let i = 0; i < operatorsArray.length; i++){
+    operatorsArray[i].button = document.createElement("button");
+    operatorsArray[i].button.textContent = operatorsArray[i].value;
+    operatorsArray[i].div.append(operatorsArray[i].button);
 }
 
 let calArray = [];
@@ -55,14 +69,26 @@ for(let i = 0; i < buttonContent.length; i ++){
 
 
 // button functions.
+//equal button function
+normalCArray[3].addEventListener("click", function(){
+    combineScatteredNums();
+    render(questionDiv, displayArray);
+    answerDiv.textContent = calculate(displayArray);
+    console.log(calculate(displayArray));
+})
+
 //CE button
 normalCArray[0].addEventListener("click", function(){
+    displayArray = [];
+    resultArray = [];
     answerDiv.textContent = "";
 })
 
 
 // C button 
 normalCArray[1].addEventListener("click", function(){
+    displayArray = [];
+    resultArray = [];
     questionDiv.textContent = "";
     answerDiv.textContent = "";
 })
@@ -77,22 +103,24 @@ for(let i = 0; i < numArray.length; i ++){
     })
 }
 
-//function button start from 3;
-for(let i = 0; i < normalCArray.length; i++){
-    //ADD THE PREVIOUS NUM TO THE ARRAY.
-    let newI = i +5;
-    normalCArray[newI].addEventListener("click", function(){
+//Operators Function
+for(let i = 0; i < operatorsArray.length; i++){
+    operatorsArray[i].button.addEventListener("click", function(){
+        let condition = true;
         combineScatteredNums();
         let finalIndex = displayArray.length -1;
         
-        if(displayArray[finalIndex] != normalCContent[5] && 
-            displayArray[finalIndex] != normalCContent[6] &&
-            displayArray[finalIndex] != normalCContent[7] &&
-            displayArray[finalIndex] != normalCContent[8]){
-                
-            console.log("pushing "+ normalCContent[newI]);
-            displayArray.push(normalCContent[newI]);
-            answerDiv.textContent += normalCContent[newI];
+        if(displayArray.length > 0){
+            operatorsArray.forEach((element) =>{
+                if(displayArray[finalIndex] == element.value){
+                    condition = false;
+                }
+            });
+
+            if(condition == true){
+                displayArray.push(operatorsArray[i].operator);
+                answerDiv.textContent += operatorsArray[i].value;
+            }
         }
     })
 }
@@ -105,4 +133,13 @@ function combineScatteredNums(){
     }
 }
 
-//equal button function
+//calculate function
+function calculate(array){
+    let answer = eval(array.join(" "));
+    return answer;
+}
+
+//render on the display
+function render(division, array){
+    division.textContent =  array.join(" ");
+}
